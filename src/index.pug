@@ -1,0 +1,123 @@
+doctype html
+html(lang="en")
+    head
+        meta(charset="UTF-8")
+        meta(name="viewport", content="width=device-width, initial-scale=1.0")
+        meta(http-equiv="X-UA-Compatible", content="ie=edge")
+        title Document
+        link(rel="stylesheet", href="style.css")
+
+    body
+      .mega-menu
+        each menu, key1 in data.menu
+          .parentLink(data-key=key1)
+            a.mainLink(href=`/${menu.parentHref}`)= menu.parentLink
+            .mega-menu_drop-down
+              a.menu-all-link(href=`${menu.dropdownHeaderHref}`)= menu.dropdownHeaderText
+              .subMenuWrapper
+                //- each subMenu in menu.list
+                //-   ul.subMenu-lists
+                //-     each subMenuList in subMenu
+                //-       li.subMenu-item
+                //-         a.subMenu-link(href=`/#`)= subMenuList.text
+            if menu.dropDown 
+              .mega-menu_drop-down
+                each secondMenu, key2 in menu.list
+                  .parentLinkSecondMenu(data-key=key2)
+                    //- pre= JSON.stringify(secondMenu, null, 2)
+                    if secondMenu.parentHref == 'javascript://'
+                      .mainLink=secondMenu.parentLink
+                        each secondMenuItem in secondMenu.list
+                          .mega-menu_drop-down_secondMenu
+                            .smecherie
+                              //- each secondMenuSubItem in secondMenuItem
+                              //-   if secondMenuSubItem.link
+                              //-     .smecherie2
+                              //-       a.ceva(href='#')=secondMenuSubItem.text
+                    else
+                      a.mainLink(href=`/${secondMenu.parentHref}`)=secondMenu.parentLink
+                        each secondMenuItem in secondMenu.list
+                          .mega-menu_drop-down_secondMenu
+                            .smecherie 
+                              //- each secondMenuSubItem in secondMenuItem
+                              //-   if secondMenuSubItem.link
+                              //-     .smecherie2
+                              //-       a.ceva(href='#')=secondMenuSubItem.text
+
+      script.
+        const menu = !{JSON.stringify(data.menu)};
+        console.log(menu)
+        
+        //- select the first row of links
+        let parentLinkList = [...document.querySelectorAll('.parentLink')];
+        ///- Attache a mouse event listener to all the parent links so a submenu 
+        //- shows for each of them once the user mouse is over it
+        parentLinkList
+          .filter(parentLink => parentLink.dataset.key != 6)
+          .map(parentLink => {
+          //- if(parentLink.dataset.key == 6){
+          //-   return 
+          //- }
+          parentLink.addEventListener('mouseover', e =>{
+            //- set each link in the nav bar to corespond with it's own key
+            let list = menu[e.currentTarget.dataset.key].list
+            //- select the wrapper div for the sub menu
+            let subMenuWrapper = parentLink.querySelector('.subMenuWrapper')
+            //- set the wrapping div to be empty after each event
+            subMenuWrapper.innerHTML = ''
+            //- iterate the list of each link
+            list.map(listItems =>{
+
+              //- create a unorderd list for each list in the parentLink
+              let ul = document.createElement('ul')
+              ul.className = 'subMenu-lists'
+              //- iterate each list
+              listItems.map(listItemLinks =>{
+                //- create the list items and give them classes
+                let listItem = document.createElement('li')
+                listItem.className = 'subMenu-item'
+                //- create each anchor tag and give them clases
+                let listItemLink = document.createElement('a')
+                listItemLink.className = 'subMenu-link'
+                listItemLink.innerHTML = listItemLinks.text
+                ul.appendChild(listItem)
+                //- append <a> to <li>
+                listItem.appendChild(listItemLink)
+              })
+              //- append the <ul> to the wrapping <div>
+                subMenuWrapper.appendChild(ul)
+            })
+          })
+        })
+
+        menu
+          .filter(more => more.dropDown == true)
+          .map(more=>{
+            const menu2 = more.list
+            let parentLinkSecondMenuList = [...document.querySelectorAll('.parentLinkSecondMenu')];
+              parentLinkSecondMenuList.map( parentLinkSecondMenu=>{
+                //- console.log( parentLinkSecondMenu)
+                 parentLinkSecondMenu.addEventListener('mouseover', e => {
+                  let list2 = menu2[e.currentTarget.dataset.key].list
+                  let secondSubMenuWrapper = parentLinkSecondMenu.querySelector('.smecherie')
+                  secondSubMenuWrapper.innerHTML = ''
+                  list2.map(list2Items => {
+                    let ul = document.createElement('ul')
+                    ul.className = 'secondSubMenu-lists'
+                    list2Items.map(list2Links => {
+                      let li = document.createElement('li')
+                      li.className = 'secondSubMenu-item'
+                      let atag = document.createElement('a')
+                      atag.className = 'secondSubMenu-link'
+                      console.log('secondSubMenu-link')
+                      atag.innerText = list2Links.text
+
+                      li.appendChild(atag)
+
+                      ul.appendChild(li)
+                    })
+                    secondSubMenuWrapper.appendChild(ul)
+                  })
+                })
+              })
+        })
